@@ -1,3 +1,4 @@
+
 import os
 import subprocess
 
@@ -11,7 +12,7 @@ def mostrar_codigo(ruta_script):
             print(codigo)
             return codigo
     except FileNotFoundError:
-        print("El archivo no se encontró.")
+        print(f"El archivo {ruta_script_absoluta} no se encontró. Verifica que la ruta sea correcta.")
         return None
     except Exception as e:
         print(f"Ocurrió un error al leer el archivo: {e}")
@@ -20,9 +21,9 @@ def mostrar_codigo(ruta_script):
 def ejecutar_codigo(ruta_script):
     try:
         if os.name == 'nt':  # Windows
-            subprocess.Popen(['cmd', '/k', 'python', ruta_script])
+            subprocess.run(['python', ruta_script], check=True)  # Cambié Popen por run
         else:  # Unix-based systems
-            subprocess.Popen(['xterm', '-hold', '-e', 'python3', ruta_script])
+            subprocess.run(['python3', ruta_script], check=True)  # Cambié Popen por run
     except Exception as e:
         print(f"Ocurrió un error al ejecutar el código: {e}")
 
@@ -31,8 +32,10 @@ def mostrar_menu():
     ruta_base = os.path.dirname(__file__)
 
     unidades = {
-        '1': 'Unidad 1',
-        '2': 'Unidad 2'
+        '1': 'Unidad 1 - Introduccion',
+        '2': 'Unidad 2 - Clases y objetos',
+        '3': 'Unidad 3 - Herencia y polimorfismo',  # Corregido error tipográfico
+        '4': 'Mis tareas personales'  # Nueva opción personalizada
     }
 
     while True:
@@ -47,7 +50,11 @@ def mostrar_menu():
             print("Saliendo del programa.")
             break
         elif eleccion_unidad in unidades:
-            mostrar_sub_menu(os.path.join(ruta_base, unidades[eleccion_unidad]))
+            ruta_unidad = os.path.join(ruta_base, unidades[eleccion_unidad])
+            if os.path.exists(ruta_unidad):
+                mostrar_sub_menu(ruta_unidad)
+            else:
+                print(f"La ruta {ruta_unidad} no existe.")
         else:
             print("Opción no válida. Por favor, intenta de nuevo.")
 
@@ -110,7 +117,52 @@ def mostrar_scripts(ruta_sub_carpeta):
             except ValueError:
                 print("Opción no válida. Por favor, intenta de nuevo.")
 
+tareas = []  # Lista para almacenar las tareas
+
+def gestionar_tareas():
+    while True:
+        print("\nGestión de Tareas")
+        print("1 - Ver tareas")
+        print("2 - Agregar tarea")
+        print("3 - Eliminar tarea")
+        print("0 - Regresar al menú principal")
+
+        opcion = input("Elige una opción: ")
+        if opcion == '1':
+            if not tareas:
+                print("No tienes tareas pendientes.")
+            else:
+                print("\nTus tareas:")
+                for i, tarea in enumerate(tareas, start=1):
+                    print(f"{i}. {tarea}")
+        elif opcion == '2':
+            nueva_tarea = input("Escribe la nueva tarea: ")
+            if nueva_tarea.strip() == "":
+                print("La tarea no puede estar vacía. Intenta nuevamente.")
+            else:
+                tareas.append(nueva_tarea)
+                print("Tarea agregada.")
+        elif opcion == '3':
+            if not tareas:
+                print("No tienes tareas para eliminar.")
+            else:
+                print("\nTus tareas:")
+                for i, tarea in enumerate(tareas, start=1):
+                    print(f"{i}. {tarea}")
+                try:
+                    indice = int(input("Elige el número de la tarea a eliminar: ")) - 1
+                    if 0 <= indice < len(tareas):
+                        tareas.pop(indice)
+                        print("Tarea eliminada.")
+                    else:
+                        print("Número inválido.")
+                except ValueError:
+                    print("Entrada no válida.")
+        elif opcion == '0':
+            break
+        else:
+            print("Opción no válida.")
+
 # Ejecutar el dashboard
 if __name__ == "__main__":
     mostrar_menu()
-
